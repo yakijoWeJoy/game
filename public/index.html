@@ -96,6 +96,15 @@
             alert('Room is full');
         });
 
+        currentRoomSpan.onclick = () => {
+            //navegate to a new broswer tab to roomid link
+           // Define the URL you want to open
+            const url = generteLink(roomId);
+
+            // Open the URL in a new browser tab
+            window.open(url, '_blank');
+
+         }
         sendButton.onclick = () => {
             const message = messageInput.value;
             if (message) {

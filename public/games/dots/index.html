@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dots Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #game-board {
+            border-collapse: collapse;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        #game-board td {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .line-horizontal, .line-vertical {
+            cursor: pointer;
+            position: absolute;
+            transition: background-color 0.3s;
+        }
+
+        .line-horizontal {
+            height: 5px;
+        }
+
+        .line-vertical {
+            width: 5px;
+        }
+
+        .line-horizontal.active {
+            background-color: currentColor;
+        }
+
+        .line-vertical.active {
+            background-color: currentColor;
+        }
+
+        .square {
+            position: relative;
+            background-color: transparent;
+        }
+
+        .square.player1 {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+
+        .square.player2 {
+            background-color: rgba(0, 0, 255, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #scoreboard, #turn {
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        #restart-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Dots Game</h1>
+        <table id="game-board"></table>
+        <div id="scoreboard">
+            <p>Player 1 (Red): <span id="player1-score">0</span></p>
+            <p>Player 2 (Blue): <span id="player2-score">0</span></p>
+        </div>
+        <div id="turn">
+            <p>Current Turn: <span id="current-player">Player 1 (Red)</span></p>
+        </div>
+        <div id="winner" class="hidden">
+            <h2 id="winner-text"></h2>
+            <button id="restart-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const boardSize = 6; // 6x6 grid
+        let currentPlayer = 1;
+        let player1Score = 0;
+        let player2Score = 0;
+        let lines = {};
+        let squares = {};
+        let totalLines = 0;
+        const maxLines = boardSize * (boardSize + 1) * 2;
+
+        const gameBoard = document.getElementById('game-board');
+        const player1ScoreEl = document.getElementById('player1-score');
+        const player2ScoreEl = document.getElementById('player2-score');
+        const currentPlayerEl = document.getElementById('current-player');
+        const winnerText = document.getElementById('winner-text');
+        const winnerEl = document.getElementById('winner');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Initialize the board
+        function initBoard() {
+            gameBoard.innerHTML = ''; // Clear the board before initializing
+
+            for (let row = 0; row <= boardSize; row++) {
+                const tr = document.createElement('tr');
+                for (let col = 0; col <= boardSize; col++) {
+                    const td = document.createElement('td');
+
+                    // Create dot
+                    if (row < boardSize && col < boardSize) {
+                        const dot = document.createElement('div');
+                        dot.classList.add('dot');
+                        dot.style.top = `${row * 40 + 20}px`; // Adjust position
+                        dot.style.left = `${col * 40 + 20}px`; // Adjust position
+                        td.appendChild(dot);
+                    }
+
+                    if (row < boardSize) {
+                        // Create horizontal line
+                        const lineHorizontal = document.createElement('div');
+                        lineHorizontal.classList.add('line-horizontal');
+                        lineHorizontal.dataset.row = row;
+                        lineHorizontal.dataset.col = col;
+                        lineHorizontal.dataset.direction = 'horizontal';
+                        lineHorizontal.style.top = `${row * 40 + 35}px`; // Adjust position
+                        lineHorizontal.style.left = `${col * 40}px`; // Adjust position
+                        lineHorizontal.style.width = '40px'; // Width of the line
+                        lineHorizontal.style.height = '5px'; // Height of the line
+                        lineHorizontal.addEventListener('click', handleLineClick);
+                        td.appendChild(lineHorizontal);
+                    }
+
+                    if (col < boardSize) {
+                        // Create vertical line
+                        const lineVertical = document.createElement('div');
+                        lineVertical.classList.add('line-vertical');
+                        lineVertical.dataset.row = row;
+                        lineVertical.dataset.col = col;
+                        lineVertical.dataset.direction = 'vertical';
+                        lineVertical.style.top = `${row * 40}px`; // Adjust position
+                        lineVertical.style.left = `${col * 40 + 35}px`; // Adjust position
+                        lineVertical.style.width = '5px'; // Width of the line
+                        lineVertical.style.height = '40px'; // Height of the line
+                        lineVertical.addEventListener('click', handleLineClick);
+                        td.appendChild(lineVertical);
+                    }
+
+                    if (row < boardSize && col < boardSize) {
+                        // Create square
+                        const square = document.createElement('div');
+                        square.classList.add('square');
+                        square.dataset.row = row;
+                        square.dataset.col = col;
+                        squares[`${row},${col}`] = { player: 0, completed: false };
+                        td.appendChild(square);
+                    }
+
+                    tr.appendChild(td);
+                }
+                gameBoard.appendChild(tr);
+            }
+        }
+
+        // Handle line click
+        function handleLineClick(event) {
+            const row = parseInt(event.target.dataset.row);
+            const col = parseInt(event.target.dataset.col);
+            const direction = event.target.dataset.direction;
+
+            if (lines[`${row},${col},${direction}`]) {
+                return; // Line already drawn
+            }
+
+            // Mark line as drawn
+            lines[`${row},${col},${direction}`] = currentPlayer;
+            event.target.classList.add('active');
+            event.target.style.color = currentPlayer === 1 ? 'red' : 'blue';
+            totalLines++;
+
+            let completedSquare = false;
+
+            // Check if a square was completed
+            if (direction === 'horizontal') {
+                if (row > 0 && checkSquare(row - 1, col)) {
+                    completeSquare(row - 1, col);
+                    completedSquare = true;
+                }
+                if (row < boardSize && checkSquare(row, col)) {
+                    completeSquare(row, col);
+                    completedSquare = true;
+                }
+            } else if (direction === 'vertical') {
+                if (col > 0 && checkSquare(row, col - 1)) {
+                    completeSquare(row, col - 1);
+                    completedSquare = true;
+                }
+                if (col < boardSize && checkSquare(row, col)) {
+                    completeSquare(row, col);
+                    completedSquare = true;
+                }
+            }
+
+            // If no square was completed, switch turns
+            if (!completedSquare) {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                updateTurn();
+            }
+
+            // Check if the game is over
+            if (totalLines === maxLines) {
+                endGame();
+            }
+        }
+
+        // Check if a square is completed
+        function checkSquare(row, col) {
+            return (
+                lines[`${row},${col},horizontal`] &&
+                lines[`${row + 1},${col},horizontal`] &&
+                lines[`${row},${col},vertical`] &&
+                lines[`${row},${col + 1},vertical`]
+            );
+        }
+
+        // Complete a square
+        function completeSquare(row, col) {
+            squares[`${row},${col}`].player = currentPlayer;
+            squares[`${row},${col}`].completed = true;
+            const squareEl = document.querySelector(`.square[data-row="${row}"][data-col="${col}"]`);
+            squareEl.classList.add(currentPlayer === 1 ? 'player1' : 'player2');
+
+            if (currentPlayer === 1) {
+                player1Score++;
+                player1ScoreEl.textContent = player1Score;
+            } else {
+                player2Score++;
+                player2ScoreEl.textContent = player2Score;
+            }
+        }
+
+        // Update turn display
+        function updateTurn() {
+            currentPlayerEl.textContent = `Player ${currentPlayer} (${currentPlayer === 1 ? 'Red' : 'Blue'})`;
+        }
+
+        // End the game and declare the winner
+        function endGame() {
+            winnerEl.classList.remove('hidden');
+            if (player1Score > player2Score) {
+                winnerText.textContent = 'Player 1 (Red) Wins!';
+            } else if (player2Score > player1Score) {
+                winnerText.textContent = 'Player 2 (Blue) Wins!';
+            } else {
+                winnerText.textContent = 'It\'s a Tie!';
+            }
+        }
+
+        // Restart the game
+        restartBtn.addEventListener('click', () => {
+            gameBoard.innerHTML = '';
+            player1Score = 0;
+            player2Score = 0;
+            player1ScoreEl.textContent = '0';
+            player2ScoreEl.textContent = '0';
+            currentPlayer = 1;
+            totalLines = 0;
+            lines = {};
+            squares = {};
+            updateTurn();
+            winnerEl.classList.add('hidden');
+            initBoard();
+        });
+
+        // Initialize the board on page load
+        initBoard();
+    </script>
+</body>
+</html>
