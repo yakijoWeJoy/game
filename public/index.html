@@ -9,22 +9,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>LETS PLAY</h1>
+  
     <div id="room-selection">
         <input type="text" id="room-id" placeholder="Enter Room ID">
         <button id="join-room">Join Room</button>
     </div>
 
-    <div id="share-room" style="display:none;">
-        <h3>Play with a friend</h3>
-        <p>Click the link below to invite:</p>
-        <a id="whatsappLink" href="#" target="_blank">
-            Share on WhatsApp
-        </a>
-    </div>
+    
 
     <div id="chat" style="display:none;">
+        <h1>LETS PLAY</h1>
         <h2>Room: <span id="current-room"></span></h2>
+        <div id="share-room" style="display:none;">
+      
+            <h2>Play with a friend</h2>
+            <p>Click the link below to invite:</p>
+            <a id="whatsappLink" href="#" target="_blank">
+                Share on WhatsApp
+            </a>
+            <p></p>
+        </div>
         <textarea id="messages" rows="10" readonly></textarea><br>
         <input type="text" id="message" placeholder="Enter message">
         <button id="send">Send</button>

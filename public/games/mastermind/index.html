@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastermind Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Mastermind Game</h1>
+        <div id="game">
+            <div id="set-code">
+                <h2>Player <span id="current-player">1</span>, Set Your Code:</h2>
+                <input type="password" id="player-code" maxlength="4" placeholder="Enter 4-digit code">
+                <button id="set-code-btn">Set Code</button>
+            </div>
+
+            <div id="guess-code" class="hidden">
+                <h2>Player <span id="current-player-guess">1</span>, Guess the Code:</h2>
+                <input type="text" id="player-guess" maxlength="4" placeholder="Enter 4-digit guess">
+                <button id="guess-code-btn">Submit Guess</button>
+                <p id="feedback"></p>
+            </div>
+
+            <div id="winner" class="hidden">
+                <h2>Player <span id="winner-player"></span> Wins!</h2>
+                <button id="restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
