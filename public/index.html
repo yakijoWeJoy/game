@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Chat</title>
+    <title>PLAY TOGETHER</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>WebRTC Chat Room</h1>
+    <h1>LETS PLAY</h1>
     <div id="room-selection">
         <input type="text" id="room-id" placeholder="Enter Room ID">
         <button id="join-room">Join Room</button>
     </div>
 
+    <div id="share-room" style="display:none;">
+        <h3>Play with a friend</h3>
+        <p>Click the link below to invite:</p>
+        <a id="whatsappLink" href="#" target="_blank">
+            Share on WhatsApp
+        </a>
+    </div>
 
     <div id="chat" style="display:none;">
         <h2>Room: <span id="current-room"></span></h2>
-        <h3>paly with a freind 
-            <p>Click the link below to invite:</p>
-            <a id="whatsappLink" href="#" target="_blank">
-                Share on WhatsApp
-            </a>
-        </h3>
-        <textarea id="messages" rows="10" cols="50" readonly></textarea><br>
+        <textarea id="messages" rows="10" readonly></textarea><br>
         <input type="text" id="message" placeholder="Enter message">
         <button id="send">Send</button>
     </div>
@@ -36,6 +40,8 @@
         const roomIdInput = document.getElementById('room-id');
         const joinRoomButton = document.getElementById('join-room');
         const currentRoomSpan = document.getElementById('current-room');
+        const shareRoomDiv = document.getElementById('share-room');
+      
         const roomLink = document.getElementById('room_link');
         const messagesTextArea = document.getElementById('messages');
         const messageInput = document.getElementById('message');
@@ -48,10 +54,12 @@
             //get id from querystring 
             const urlParams = new URLSearchParams(window.location.search);
           
-            roomId = urlParams.get('roomId');
+            roomId = urlParams.get('roomid');
+            console.log(roomId);
             if (!roomId) {
                 roomId=generteId()
                 generateWhatsAppLink(generteLink(roomId));
+                shareRoomDiv.style.display = 'block';
                 
             }
             socket.emit('create or join', roomId);
@@ -105,7 +113,7 @@
 
      
         function generteLink (roomId) {
-            return window.location.origin + '/?roomId=' + roomId;
+            return window.location.origin + '/?roomid=' + roomId;
         }
 
         function generateWhatsAppLink(baseUrl) {
