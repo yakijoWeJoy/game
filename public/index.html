@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-   
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLAY TOGETHER</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  
+
     <div id="room-selection">
         <input type="text" id="room-id" placeholder="Enter Room ID">
         <button id="join-room">Join Room</button>
     </div>
 
-    
+
 
     <div id="chat" style="display:none;">
-        <h1>LETS PLAY</h1>
-        <h2>Room: <span id="current-room"></span></h2>
+        <h2 style="display:none;">Room: <span id="current-room"></span></h2>
         <div id="share-room" style="display:none;">
-      
+
             <h2>Play with a friend</h2>
             <p>Click the link below to invite:</p>
             <a id="whatsappLink" href="#" target="_blank">
@@ -29,8 +30,31 @@
             </a>
             <p></p>
         </div>
+        <div class="containerMastermind">
+            <h1>Mastermind Game</h1>
+            <div id="game">
+                <div id="set-code">
+                    <h2> Set Your Code</h2>
+                    <input type="text" id="player-code" maxlength="4" placeholder="Enter 4-digit code your friend needs to guess">
+                    <button id="set-code-btn" onclick="masterMind_Setcode()">Set Code</button>
+                    <p ></p>
+                </div>
+
+                <div id="guess-code" class="hidden">
+                    <h2>Player <span id="current-player-guess">1</span>, Guess the Code:</h2>
+                    <input type="text" id="player-guess" maxlength="4" placeholder="Enter 4-digit guess">
+                    <button id="guess-code-btn" onclick="masterMind_Guesscode()">Submit Guess</button>
+                    <p id="feedback"></p>
+                </div>
+
+                <div id="winner" class="hidden">
+                    <h2>Player <span id="winner-player"></span> Wins!</h2>
+                    <button id="restart-btn">Play Again</button>
+                </div>
+            </div>
+        </div>
         <textarea id="messages" rows="10" readonly></textarea><br>
-        <input type="text" id="message" placeholder="Enter message">
+        <input type="text" id="message" placeholder="Enter message to chat">
         <button id="send">Send</button>
     </div>
 
@@ -38,39 +62,54 @@
     <script>
         const socket = io();
 
-     
+
         const roomSelectionDiv = document.getElementById('room-selection');
         const chatDiv = document.getElementById('chat');
         const roomIdInput = document.getElementById('room-id');
         const joinRoomButton = document.getElementById('join-room');
         const currentRoomSpan = document.getElementById('current-room');
         const shareRoomDiv = document.getElementById('share-room');
-      
+
         const roomLink = document.getElementById('room_link');
         const messagesTextArea = document.getElementById('messages');
         const messageInput = document.getElementById('message');
         const sendButton = document.getElementById('send');
-        const whatsappLink =  document.getElementById('whatsappLink');
-
+        const whatsappLink = document.getElementById('whatsappLink');
+        var game;
         let roomId;
 
         window.onload = () => {
             //get id from querystring 
             const urlParams = new URLSearchParams(window.location.search);
-          
+
             roomId = urlParams.get('roomid');
-            console.log(roomId);
+
             if (!roomId) {
-                roomId=generteId()
+                roomId = generteId()
                 generateWhatsAppLink(generteLink(roomId));
                 shareRoomDiv.style.display = 'block';
-                
+
             }
             socket.emit('create or join', roomId);
-
+            game = getGameFromLocalStorage();
 
 
         }
+
+        // Save an object to localStorage
+        function saveGametoLocalStorage() {
+            sessionStorage.setItem("game", JSON.stringify(game));
+        }
+
+        // Retrieve an object from localStorage
+        function getGameFromLocalStorage() {
+            const objString = sessionStorage.getItem("game");
+            if (!objString) return {};
+            return objString ? JSON.parse(objString) : null;
+        }
+
+
+
         joinRoomButton.onclick = () => {
             roomId = roomIdInput.value;
             if (roomId) {
@@ -98,45 +137,110 @@
 
         currentRoomSpan.onclick = () => {
             //navegate to a new broswer tab to roomid link
-           // Define the URL you want to open
+            // Define the URL you want to open
             const url = generteLink(roomId);
 
             // Open the URL in a new browser tab
             window.open(url, '_blank');
 
-         }
+        }
         sendButton.onclick = () => {
             const message = messageInput.value;
             if (message) {
                 socket.emit('message', message, roomId);
-                messagesTextArea.value += `You: ${message}\n`;
+                addMessageToTextArea(`You: ${message}\n`);
                 messageInput.value = '';
             }
         };
 
         socket.on('message', (message) => {
-            messagesTextArea.value += `Peer: ${message}\n`;
+
+            if (isJsonObject(message)) {
+
+                addMessageToTextArea(`Friend : ${message.feed}\n`);
+                window[message.callBack](message.value);
+            }
+            else {
+                addMessageToTextArea(`Peer: ${message}\n`);
+            }
         });
 
 
-        function generteId() {
-            return   Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-           
+        function isJsonObject(param) {
+            return typeof param === 'object' && param !== null && !Array.isArray(param);
+        }
+        function sendMessage(message) {
+            addMessageToTextArea(`You: ${message.feed}\n`);
+
+            socket.emit('message', message, roomId);
         }
 
-     
-        function generteLink (roomId) {
+        function addMessageToTextArea(msg) {
+            messagesTextArea.value += msg;
+            messagesTextArea.scrollTop = messagesTextArea.scrollHeight;
+        }
+
+        function generteId() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+        }
+
+
+        function generteLink(roomId) {
             return window.location.origin + '/?roomid=' + roomId;
         }
 
         function generateWhatsAppLink(baseUrl) {
-            
+
             const message = 'whatsapp';
             const encodedMessage = encodeURIComponent(`${message} ${baseUrl}`);
             const shareUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
             whatsappLink.href = shareUrl;
-            
+
         }
+        function masterMind_Setcode() {
+            var element = document.getElementById('player-code');
+            game.mycode = element.value;
+            saveGametoLocalStorage();
+            sendMessage({ 'callBack': 'peer_Setcode', 'value': game.mycode, 'feed': 'I set my code' });
+
+            document.getElementById('set-code').classList.add('hidden');
+        }
+
+        function peer_Setcode(code) {
+            game.peerCode = code;
+            saveGametoLocalStorage();
+            document.getElementById('guess-code').classList.remove('hidden');
+        }
+
+        function masterMind_Guesscode() {
+            var element = document.getElementById('player-guess');
+            var feedBack = masterMind_CheckGuess(element.value, game.peerCode);
+            sendMessage({ 'callBack': 'peer_Guesscode', 'value': feedBack, 'feed': `code  ${element.value} -> 🤍 ${feedBack.correct} 🖤 ${feedBack.partial}` });
+
+
+
+        }
+        function masterMind_CheckGuess(guess, code) {
+            let correct = 0;
+            let partial = 0;
+            const guessArr = guess.split('');
+            const codeArr = code.split('');
+
+            guessArr.forEach((digit, index) => {
+                if (digit === codeArr[index]) {
+                    correct++;
+                } else if (codeArr.includes(digit)) {
+                    partial++;
+                }
+            });
+
+            return { correct, partial };
+        }
+
     </script>
+
+
 </body>
+
 </html>
