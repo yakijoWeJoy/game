@@ -12,39 +12,36 @@
 
 <body>
 
-    <div id="room-selection">
-        <input type="text" id="room-id" placeholder="Enter Room ID">
-        <button id="join-room">Join Room</button>
-    </div>
 
 
 
-    <div id="chat" style="display:none;">
+
+    <div id="chat">
         <h2 style="display:none;">Room: <span id="current-room"></span></h2>
         <div id="share-room" style="display:none;">
 
             <h2>Play with a friend</h2>
-            <p>Click the link below to invite:</p>
             <a id="whatsappLink" href="#" target="_blank">
-                Share on WhatsApp
+                Invite a friend
             </a>
             <p></p>
         </div>
-        <div class="containerMastermind">
+        <div id="containerMastermind" style="display:none;">
             <h1>Mastermind Game</h1>
             <div id="game">
                 <div id="set-code">
-                    <h2> Set Your Code</h2>
-                    <input type="text" id="player-code" maxlength="4" placeholder="Enter 4-digit code your friend needs to guess">
+                    <h2 id="set-code_txt">Set Your Code:</h2>
+                    <input type="text" id="player-code" maxlength="4"
+                        placeholder="Enter 4-digit code ">
                     <button id="set-code-btn" onclick="masterMind_Setcode()">Set Code</button>
-                    <p ></p>
+                    <p></p>
                 </div>
 
                 <div id="guess-code" class="hidden">
-                    <h2>Player <span id="current-player-guess">1</span>, Guess the Code:</h2>
+                    <h2> Guess the Code:</h2>
                     <input type="text" id="player-guess" maxlength="4" placeholder="Enter 4-digit guess">
                     <button id="guess-code-btn" onclick="masterMind_Guesscode()">Submit Guess</button>
-                    <p id="feedback"></p>
+                    <p ></p>
                 </div>
 
                 <div id="winner" class="hidden">
@@ -53,7 +50,7 @@
                 </div>
             </div>
         </div>
-        <textarea id="messages" rows="10" readonly></textarea><br>
+        <textarea id="messages" rows="6" readonly></textarea><br>
         <input type="text" id="message" placeholder="Enter message to chat">
         <button id="send">Send</button>
     </div>
@@ -68,7 +65,7 @@
         const roomIdInput = document.getElementById('room-id');
         const joinRoomButton = document.getElementById('join-room');
         const currentRoomSpan = document.getElementById('current-room');
-        const shareRoomDiv = document.getElementById('share-room');
+  
 
         const roomLink = document.getElementById('room_link');
         const messagesTextArea = document.getElementById('messages');
@@ -83,18 +80,25 @@
             const urlParams = new URLSearchParams(window.location.search);
 
             roomId = urlParams.get('roomid');
-
             if (!roomId) {
-                roomId = generteId()
-                generateWhatsAppLink(generteLink(roomId));
-                shareRoomDiv.style.display = 'block';
+                roomId = sessionStorage.getItem("roomId");
+                if (!roomId) {
+                  roomId = generteId()
+               
+              
 
+                }
+                generateWhatsAppLink(generteLink(roomId));
+                document.getElementById('share-room').style.display = 'block';
             }
+            
             socket.emit('create or join', roomId);
+           
             game = getGameFromLocalStorage();
 
 
         }
+
 
         // Save an object to localStorage
         function saveGametoLocalStorage() {
@@ -110,29 +114,30 @@
 
 
 
-        joinRoomButton.onclick = () => {
-            roomId = roomIdInput.value;
-            if (roomId) {
-                socket.emit('create or join', roomId);
-            }
-        };
+
 
         socket.on('created', (room) => {
-            console.log('Created room:', room);
-            currentRoomSpan.textContent = room;
-            roomSelectionDiv.style.display = 'none';
-            chatDiv.style.display = 'block';
+            addMessageToTextArea(`You: Created room ${room}\n`);
+            sessionStorage.setItem("roomId", roomId);
+        
+
         });
 
         socket.on('joined', (room) => {
-            console.log('Joined room:', room);
-            currentRoomSpan.textContent = room;
-            roomSelectionDiv.style.display = 'none';
-            chatDiv.style.display = 'block';
+            addMessageToTextArea(`You: Joined room ${room}\n`); 
+            document.getElementById('share-room').style.display = 'none';     
+            document.getElementById('containerMastermind').style.display = 'block';
+
         });
 
         socket.on('full', (room) => {
             alert('Room is full');
+        });
+
+        socket.on('ready', (room) => {
+            addMessageToTextArea(`Friend: Joined room \n`);
+            document.getElementById('share-room').style.display = 'none';
+            document.getElementById('containerMastermind').style.display = 'block';
         });
 
         currentRoomSpan.onclick = () => {
@@ -181,7 +186,7 @@
         }
 
         function generteId() {
-            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            return Math.random().toString(36).substring(2, 15);
 
         }
 
@@ -192,7 +197,7 @@
 
         function generateWhatsAppLink(baseUrl) {
 
-            const message = 'whatsapp';
+            const message = 'come play with me mastermind';
             const encodedMessage = encodeURIComponent(`${message} ${baseUrl}`);
             const shareUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
             whatsappLink.href = shareUrl;
@@ -203,14 +208,15 @@
             game.mycode = element.value;
             saveGametoLocalStorage();
             sendMessage({ 'callBack': 'peer_Setcode', 'value': game.mycode, 'feed': 'I set my code' });
-
-            document.getElementById('set-code').classList.add('hidden');
+            document.getElementById('set-code-btn').disabled = true;
+            masterMind_SetInputArea();
         }
 
         function peer_Setcode(code) {
             game.peerCode = code;
             saveGametoLocalStorage();
-            document.getElementById('guess-code').classList.remove('hidden');
+        
+            masterMind_SetInputArea();
         }
 
         function masterMind_Guesscode() {
@@ -218,9 +224,9 @@
             var feedBack = masterMind_CheckGuess(element.value, game.peerCode);
             sendMessage({ 'callBack': 'peer_Guesscode', 'value': feedBack, 'feed': `code  ${element.value} -> 🤍 ${feedBack.correct} 🖤 ${feedBack.partial}` });
 
-
-
         }
+
+
         function masterMind_CheckGuess(guess, code) {
             let correct = 0;
             let partial = 0;
@@ -236,6 +242,20 @@
             });
 
             return { correct, partial };
+        }
+        function masterMind_SetInputArea() {
+
+            if(game.peerCode &&  game.mycode)
+            {
+                document.getElementById('set-code').classList.add('hidden');
+                document.getElementById('guess-code').classList.remove('hidden');
+            }
+            else
+            {
+                document.getElementById('set-code').classList.remove('hidden');
+                document.getElementById('guess-code').classList.add('hidden');  
+            }
+
         }
 
     </script>

@@ -10,6 +10,13 @@ const io = socketIO(server);
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/api/room/:roomId/clients', (req, res) => {
+    const roomId = req.params.roomId;
+    const clients = io.sockets.adapter.rooms.get(roomId);
+    const numberOfClients = clients ? clients.size : 0;
+    res.json({ roomId, numberOfClients });
+});
+
 io.on('connection', (socket) => {
     console.log('New user connected');
 
@@ -21,10 +28,14 @@ io.on('connection', (socket) => {
 
         if (clients.size === 0) {
             socket.join(room);
+            console.log(`created ${room}`);
+
             socket.emit('created', room);
         } else if (clients.size === 1) {
             socket.join(room);
+            console.log(`joined ${room}`);
             socket.emit('joined', room);
+            socket.to(room).emit('ready');
         } else {
             socket.emit('full', room);
         }

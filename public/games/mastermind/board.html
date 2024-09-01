@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastermind Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .board {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .guess {
+            display: flex;
+            gap: 5px;
+        }
+        .guess div {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background-color: white;
+        }
+        .result {
+            display: flex;
+            gap: 5px;
+        }
+        .result div {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+        .colors {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .colors div {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .colors div:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="board">
+    <!-- Repeated rows for the player to guess -->
+    <div class="row">
+        <div class="guess" data-row="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="result" data-result="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!-- More rows can be added as needed -->
+</div>
+
+<!-- Color options for the user to drag -->
+<div class="colors">
+    <div class="color" style="background-color: red;" draggable="true"></div>
+    <div class="color" style="background-color: blue;" draggable="true"></div>
+    <div class="color" style="background-color: green;" draggable="true"></div>
+    <div class="color" style="background-color: yellow;" draggable="true"></div>
+    <div class="color" style="background-color: orange;" draggable="true"></div>
+    <div class="color" style="background-color: purple;" draggable="true"></div>
+    <div class="color" style="background-color: pink;" draggable="true"></div>
+    <div class="color" style="background-color: brown;" draggable="true"></div>
+</div>
+
+<script>
+    // Functionality to drag and drop colors into the guess slots
+    const colors = document.querySelectorAll('.color');
+    const guessSlots = document.querySelectorAll('.guess div');
+
+    colors.forEach(color => {
+        color.addEventListener('dragstart', dragStart);
+    });
+
+    guessSlots.forEach(slot => {
+        slot.addEventListener('dragover', dragOver);
+        slot.addEventListener('drop', dropColor);
+    });
+
+    function dragStart(event) {
+        event.dataTransfer.setData('color', event.target.style.backgroundColor);
+    }
+
+    function dragOver(event) {
+        event.preventDefault();
+    }
+
+    function dropColor(event) {
+        const color = event.dataTransfer.getData('color');
+        event.target.style.backgroundColor = color;
+    }
+
+    // Function to check the user's guess
+    function checkGuess(row) {
+        const guessSlots = document.querySelectorAll(`.guess[data-row="${row}"] div`);
+        const resultSlots = document.querySelectorAll(`.result[data-result="${row}"] div`);
+
+        // Simulated correct code (can be generated randomly)
+        const correctCode = ['red', 'blue', 'green', 'yellow'];
+
+        let correctPosition = 0;
+        let correctColor = 0;
+
+        const guessedColors = [];
+        guessSlots.forEach(slot => {
+            guessedColors.push(slot.style.backgroundColor);
+        });
+
+        // Compare the guessed colors with the correct code
+        guessedColors.forEach((color, index) => {
+            if (color === correctCode[index]) {
+                correctPosition++;
+            } else if (correctCode.includes(color)) {
+                correctColor++;
+            }
+        });
+
+        // Display results
+        for (let i = 0; i < correctPosition; i++) {
+            resultSlots[i].style.backgroundColor = 'black';
+        }
+        for (let i = correctPosition; i < correctPosition + correctColor; i++) {
+            resultSlots[i].style.backgroundColor = 'white';
+        }
+    }
+
+    // Example of checking the first row (can be triggered by a button)
+    document.querySelector('button').addEventListener('click', () => checkGuess(1));
+</script>
+
+</body>
+</html>
