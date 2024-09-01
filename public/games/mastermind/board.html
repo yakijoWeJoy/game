@@ -32,7 +32,7 @@
             height: 30px;
             border-radius: 50%;
             border: 2px solid #ccc;
-            background-color: white;
+            background-color: gray;
         }
         .result {
             display: flex;
@@ -42,7 +42,7 @@
             width: 15px;
             height: 15px;
             border-radius: 50%;
-            background-color: white;
+            background-color: gray;
             border: 1px solid #ccc;
         }
         .colors {
@@ -65,7 +65,7 @@
 
 <div class="board">
     <!-- Repeated rows for the player to guess -->
-    <div class="row">
+    <div class="row" id="row4">
         <div class="guess" data-row="1">
             <div></div>
             <div></div>
@@ -78,24 +78,79 @@
             <div></div>
             <div></div>
         </div>
+    
+        
+    </div>
+    <div class="row" id="row3">
+        <div class="guess" data-row="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="result" data-result="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        
+    </div>
+    <div class="row" id="row2">
+        <div class="guess" data-row="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="result" data-result="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        
+    </div>
+    <div class="row" id="row1">
+        <div class="guess" data-row="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="result" data-result="1">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        
     </div>
     <!-- More rows can be added as needed -->
+    <div class="colors">
+        <div class="color" style="background-color: red;" draggable="true"></div>
+        <div class="color" style="background-color: blue;" draggable="true"></div>
+        <div class="color" style="background-color: green;" draggable="true"></div>
+        <div class="color" style="background-color: yellow;" draggable="true"></div>
+
+        <div class="color" style="background-color: purple;" draggable="true"></div>
+        <div class="color" style="background-color: pink;" draggable="true"></div>
+  
+    </div>
+    <div>
+        <button id="check-btn">Check</button>
+    </div>
 </div>
 
-<!-- Color options for the user to drag -->
-<div class="colors">
-    <div class="color" style="background-color: red;" draggable="true"></div>
-    <div class="color" style="background-color: blue;" draggable="true"></div>
-    <div class="color" style="background-color: green;" draggable="true"></div>
-    <div class="color" style="background-color: yellow;" draggable="true"></div>
-    <div class="color" style="background-color: orange;" draggable="true"></div>
-    <div class="color" style="background-color: purple;" draggable="true"></div>
-    <div class="color" style="background-color: pink;" draggable="true"></div>
-    <div class="color" style="background-color: brown;" draggable="true"></div>
-</div>
+
+
 
 <script>
     // Functionality to drag and drop colors into the guess slots
+    const round =1;
     const colors = document.querySelectorAll('.color');
     const guessSlots = document.querySelectorAll('.guess div');
 
@@ -117,6 +172,8 @@
     }
 
     function dropColor(event) {
+       
+        
         const color = event.dataTransfer.getData('color');
         event.target.style.backgroundColor = color;
     }
@@ -156,7 +213,7 @@
     }
 
     // Example of checking the first row (can be triggered by a button)
-    document.querySelector('button').addEventListener('click', () => checkGuess(1));
+    document.querySelector('button').addEventListener('click', () => checkGuess(round));
 </script>
 
 </body>
