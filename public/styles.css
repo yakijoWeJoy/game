@@ -57,14 +57,7 @@ button {
 button:hover {
     background-color: #0056b3;
 }
-button:disabled {
-    background-color: gray; /* Set the background color to gray */
-    color: white; /* Optional: Set the text color to white for better contrast */
-    cursor: not-allowed; /* Optional: Change the cursor to indicate the button is not clickable */
-    opacity: 0.7; /* Optional: Add some transparency */
-}
-Example HTML with CSS
-Here'
+
 
 /* Section Styles */
 section {
