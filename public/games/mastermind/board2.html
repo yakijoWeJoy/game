@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Code Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .color-container, .code-input {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+        }
+        .color {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 10px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .code-slot {
+            width: 50px;
+            height: 50px;
+            border: 2px dashed #333;
+            border-radius: 50%;
+            margin: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Drag and Drop Color Code</h1>
+
+    <div class="color-container">
+        <div class="color" id="color1" style="background-color: red;" draggable="true"></div>
+        <div class="color" id="color2" style="background-color: blue;" draggable="true"></div>
+        <div class="color" id="color3" style="background-color: green;" draggable="true"></div>
+        <div class="color" id="color4" style="background-color: yellow;" draggable="true"></div>
+        <div class="color" id="color5" style="background-color: purple;" draggable="true"></div>
+        <div class="color" id="color6" style="background-color: orange;" draggable="true"></div>
+    </div>
+
+    <h2>Your Code</h2>
+
+    <div class="code-input">
+        <div class="code-slot" id="slot1"></div>
+        <div class="code-slot" id="slot2"></div>
+        <div class="code-slot" id="slot3"></div>
+        <div class="code-slot" id="slot4"></div>
+    </div>
+
+    <script>
+        const colors = document.querySelectorAll('.color');
+        const slots = document.querySelectorAll('.code-slot');
+
+        // Function to handle drag start
+        colors.forEach(color => {
+            color.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('color', color.style.backgroundColor);
+            });
+
+            // Mobile touch support
+            color.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                color.style.left = `${touch.pageX - 25}px`;
+                color.style.top = `${touch.pageY - 25}px`;
+            });
+        });
+
+        // Function to handle drop
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const color = e.dataTransfer.getData('color');
+                slot.style.backgroundColor = color;
+            });
+
+            // Mobile touch support for drop
+            slot.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (element.classList.contains('code-slot')) {
+                    element.style.backgroundColor = window.getComputedStyle(touch.target).backgroundColor;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
