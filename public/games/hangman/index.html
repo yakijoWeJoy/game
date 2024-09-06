@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .word-display {
+            font-size: 24px;
+            letter-spacing: 10px;
+            margin: 20px 0;
+        }
+
+        .letter-input {
+            margin: 20px 0;
+        }
+
+        .hangman {
+            font-size: 24px;
+            color: red;
+            margin: 20px 0;
+        }
+
+        .game-over {
+            color: red;
+            font-size: 28px;
+            margin: 20px 0;
+        }
+
+        .win {
+            color: green;
+            font-size: 28px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hangman Game</h1>
+
+    <!-- Step 1: User inputs the word -->
+    <div class="input-container">
+        <label for="word-input">Enter a word (for someone else to guess): </label>
+        <input type="password" id="word-input">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Step 2: Word format display -->
+    <div id="game-container" style="display:none;">
+        <div id="word-display" class="word-display"></div>
+
+        <!-- Step 3: User guesses a letter -->
+        <div class="letter-input">
+            <label for="letter-guess">Guess a letter: </label>
+            <input type="text" id="letter-guess" maxlength="1">
+            <button onclick="guessLetter()">Guess</button>
+        </div>
+
+        <!-- Hangman drawing -->
+        <div id="hangman" class="hangman"></div>
+
+        <!-- Game over or win message -->
+        <div id="message"></div>
+    </div>
+
+    <script>
+        let word = '';
+        let guessedWord = [];
+        let wrongGuesses = 0;
+        const maxWrongGuesses = 9;
+
+        const hangmanStages = [
+            'Head',
+            'Body',
+            'Left Arm',
+            'Right Arm',
+            'Left Leg',
+            'Right Leg',
+            'Left Eye',
+            'Right Eye',
+            'Mouth'
+        ];
+
+        // Step 1: Start the game, hide the input field and show the blanks
+        function startGame() {
+            word = document.getElementById('word-input').value.toLowerCase();
+            if (word === '') {
+                alert('Please enter a word.');
+                return;
+            }
+
+            guessedWord = Array(word.length).fill('_');
+            document.getElementById('word-display').innerText = guessedWord.join(' ');
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('word-input').value = '';  // Clear the input field
+            document.querySelector('.input-container').style.display = 'none';
+        }
+
+        // Step 3: Guess a letter
+        function guessLetter() {
+            const guess = document.getElementById('letter-guess').value.toLowerCase();
+            if (!guess || guess.length !== 1 || !/[a-z]/.test(guess)) {
+                alert('Please enter a valid letter.');
+                return;
+            }
+
+            document.getElementById('letter-guess').value = '';  // Clear the input field
+
+            if (word.includes(guess)) {
+                // Correct guess, reveal the letter
+                for (let i = 0; i < word.length; i++) {
+                    if (word[i] === guess) {
+                        guessedWord[i] = guess;
+                    }
+                }
+                document.getElementById('word-display').innerText = guessedWord.join(' ');
+
+                // Check if the player has won
+                if (guessedWord.join('') === word) {
+                    document.getElementById('message').innerHTML = '<div class="win">You won!</div>';
+                    disableGame();
+                }
+            } else {
+                // Incorrect guess, add a hangman part
+                wrongGuesses++;
+                document.getElementById('hangman').innerText = hangmanStages.slice(0, wrongGuesses).join(', ');
+
+                // Check if the player has lost
+                if (wrongGuesses === maxWrongGuesses) {
+                    document.getElementById('message').innerHTML = `<div class="game-over">Game Over! The word was "${word}".</div>`;
+                    disableGame();
+                }
+            }
+        }
+
+        // Disable the game after win/loss
+        function disableGame() {
+            document.getElementById('letter-guess').disabled = true;
+            document.querySelector('.letter-input button').disabled = true;
+        }
+    </script>
+
+</body>
+</html>
