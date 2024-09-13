@@ -36,91 +36,19 @@
             color: green;
             font-size: 28px;
         }
+        canvas {
+            background-color: #f0f0f0;
+            border: 2px solid #000;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    
     </style>
-    <script>
-        const hangmanStages = [
-            'Head',
-            'Body',
-            'Left Arm',
-            'Right Arm',
-            'Left Leg',
-            'Right Leg',
-            'Left Eye',
-            'Right Eye',
-            'Hat'
-        ];
-
-        let word = '';
-        let guessedWord = [];
-        let wrongGuesses = 0;
-        const maxWrongGuesses = 9;
-
-        function decrypt(text) {
-            return atob(text);
-        }
-
-        // Get query parameter from the URL
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        function startGame() {
-            const encryptedWord = getQueryParam('word');
-            if (!encryptedWord) {
-                alert('No word found!');
-                return;
-            }
-
-            word = decrypt(encryptedWord);
-            guessedWord = Array(word.length).fill('_');
-            document.getElementById('word-display').innerText = guessedWord.join(' ');
-        }
-
-        function guessLetter() {
-            const guess = document.getElementById('letter-guess').value.toLowerCase();
-            if (!guess || guess.length !== 1 || !/[a-z]/.test(guess)) {
-                alert('Please enter a valid letter.');
-                return;
-            }
-
-            document.getElementById('letter-guess').value = '';  // Clear the input field
-
-            if (word.includes(guess)) {
-                // Correct guess, reveal the letter
-                for (let i = 0; i < word.length; i++) {
-                    if (word[i] === guess) {
-                        guessedWord[i] = guess;
-                    }
-                }
-                document.getElementById('word-display').innerText = guessedWord.join(' ');
-
-                // Check if the player has won
-                if (guessedWord.join('') === word) {
-                    document.getElementById('message').innerHTML = '<div class="win">You won!</div>';
-                    disableGame();
-                }
-            } else {
-                // Incorrect guess, add a snowman part
-                wrongGuesses++;
-                document.getElementById('snowman').innerText = hangmanStages.slice(0, wrongGuesses).join(', ');
-
-                // Check if the player has lost
-                if (wrongGuesses === maxWrongGuesses) {
-                    document.getElementById('message').innerHTML = `<div class="game-over">Game Over! The word was "${word}".</div>`;
-                    disableGame();
-                }
-            }
-        }
-
-        function disableGame() {
-            document.getElementById('letter-guess').disabled = true;
-            document.querySelector('.letter-input button').disabled = true;
-        }
-
-        // Initialize the game
-        window.onload = startGame;
-    </script>
+  
 </head>
 <body>
 
@@ -128,15 +56,295 @@
 
     <div id="word-display" class="word-display"></div>
 
-    <div class="letter-input">
-        <label for="letter-guess">Guess a letter: </label>
-        <input type="text" id="letter-guess" maxlength="1">
-        <button onclick="guessLetter()">Guess</button>
+    <div >
+         <div  id="letter-input">
+            <label for="letter-guess">Guess a letter:</label>
+            <input width="10" type="text" id="letter-guess" maxlength="1">
+            <button onclick="guessLetter()">Guess</button>
+          </div>
+          <div id="create_back" style="display: none" ><a href="index.html" target="_blank">create a snow man for a friend</a><br></div>
+        <canvas id="snowmanCanvas" width="400" height="500" ></canvas><br>
     </div>
 
-    <div id="snowman" class="snowman"></div>
+   
 
     <div id="message"></div>
 
 </body>
+<script>
+  
+
+    let word = '';
+    let guessedWord = [];
+    let wrongGuesses = 0;
+    let gameid ;
+    let friendid;
+    const maxWrongGuesses = 7;
+
+    function decrypt(text) {
+        return atob(text);
+    }
+
+    // Get query parameter from the URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function startGame() {
+
+       
+        const encryptedWord = getQueryParam('word');
+        gameid = getQueryParam('g');
+
+        var gameFound = localStorage.getItem(gameid);
+        if(gameFound){
+            alert('you already played this game ');
+             window.location.href = 'index.html'
+           
+            return;
+        }
+        friendid =getQueryParam('p');
+        if (!encryptedWord) {
+            alert('No word found!');
+            return;
+        }
+
+        word = decrypt(encryptedWord);
+        guessedWord = Array(word.length).fill('_');
+        document.getElementById('word-display').innerText = guessedWord.join(' ');
+    }
+
+    function guessLetter() {
+        const guess = document.getElementById('letter-guess').value.toLowerCase();
+        if (!guess || guess.length !== 1 || !/[a-z]/.test(guess)) {
+            alert('Please enter a valid letter.');
+            return;
+        }
+
+        document.getElementById('letter-guess').value = '';  // Clear the input field
+
+        if (word.includes(guess)) {
+            // Correct guess, reveal the letter
+            for (let i = 0; i < word.length; i++) {
+                if (word[i] === guess) {
+                    guessedWord[i] = guess;
+                }
+            }
+            document.getElementById('word-display').innerText = guessedWord.join(' ');
+
+            // Check if the player has won
+            if (guessedWord.join('') === word) {
+                youwin();
+                saveGaneEnded('1');
+                disableGame();
+            }
+        } else {
+            // Incorrect guess, add a snowman part
+            wrongGuesses++;
+            drawNextStep();
+
+            // Check if the player has lost
+            if (wrongGuesses === maxWrongGuesses) {
+                youloose();
+                saveGaneEnded('0');
+                disableGame();
+            }
+        }
+    }
+
+    function saveGaneEnded (result)
+    {
+        localStorage.setItem(gameid, {"word": word, "result": result, "friendid": friendid});
+    }
+
+    function disableGame() {
+        document.getElementById('create_back').style.display = 'block';
+        document.getElementById('letter-input').style.display = 'none';
+     
+   
+        
+
+    }
+
+    // Initialize the game
+    window.onload = startGame;
+   
+    const canvas = document.getElementById('snowmanCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentStep = 0;
+
+        // Function to draw the snowman step by step
+        function drawNextStep() {
+            currentStep++;
+            switch (currentStep) {
+                case 1:
+                    drawBase();
+                    break;
+                case 2:
+                    drawMiddle();
+                    break;
+                case 3:
+                    drawHead();
+                    break;
+                case 4:
+                    drawLeftArm();
+                    break;
+                case 5:
+                    drawRightArm();
+                    break;
+                case 6:
+                    drawDetails();
+                    break;
+                case 7:
+                    drawScarf();
+                    break;
+                case 8:
+                    drawSmile();
+                    break;
+                default:
+                    alert("Snowman complete!");
+                    break;
+            }
+        }
+
+        // Step 1: Draw the base circle
+        function drawBase() {
+            ctx.beginPath();
+            ctx.arc(200, 450, 100, 0, Math.PI * 2, true); // Base circle
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // Step 2: Draw the middle circle
+        function drawMiddle() {
+            ctx.beginPath();
+            ctx.arc(200, 300, 75, 0, Math.PI * 2, true); // Middle circle
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // Step 3: Draw the head circle
+        function drawHead() {
+            ctx.beginPath();
+            ctx.arc(200, 180, 50, 0, Math.PI * 2, true); // Head circle
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // Step 4: Draw the left arm
+        function drawLeftArm() {
+            ctx.beginPath();
+            ctx.moveTo(135, 300); // Start point for left arm
+            ctx.lineTo(70, 250); // End point for left arm
+            ctx.strokeStyle = 'brown';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw fingers (twigs)
+            ctx.moveTo(70, 250);
+            ctx.lineTo(50, 240); // Left twig
+            ctx.moveTo(70, 250);
+            ctx.lineTo(50, 260); // Right twig
+            ctx.stroke();
+        }
+
+        // Step 5: Draw the right arm
+        function drawRightArm() {
+            ctx.beginPath();
+            ctx.moveTo(265, 300); // Start point for right arm
+            ctx.lineTo(330, 250); // End point for right arm
+            ctx.strokeStyle = 'brown';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // Draw fingers (twigs)
+            ctx.moveTo(330, 250);
+            ctx.lineTo(350, 240); // Right twig
+            ctx.moveTo(330, 250);
+            ctx.lineTo(350, 260); // Left twig
+            ctx.stroke();
+        }
+
+        // Step 6: Draw buttons, eyes, and nose
+        function drawDetails() {
+            // Draw buttons on middle
+            ctx.beginPath();
+            ctx.arc(200, 250, 8, 0, Math.PI * 2, true); // Top button
+            ctx.arc(200, 300, 8, 0, Math.PI * 2, true); // Middle button
+            ctx.arc(200, 350, 8, 0, Math.PI * 2, true); // Bottom button
+            ctx.fillStyle = 'black';
+            ctx.fill();
+
+            // Draw eyes
+            ctx.beginPath();
+            ctx.arc(185, 170, 5, 0, Math.PI * 2, true); // Left eye
+            ctx.arc(215, 170, 5, 0, Math.PI * 2, true); // Right eye
+            ctx.fillStyle = 'black';
+            ctx.fill();
+
+            // Draw carrot nose
+            ctx.beginPath();
+            ctx.moveTo(200, 180); // Start point for nose
+            ctx.lineTo(200, 190); // Carrot body (vertical part)
+            ctx.lineTo(230, 185); // Carrot tip
+            ctx.fillStyle = 'orange';
+            ctx.fill();
+        }
+
+        // Step 7: Draw the scarf
+        function drawScarf() {
+            // Scarf around neck
+            ctx.beginPath();
+            ctx.moveTo(150, 195); // Left side of the scarf
+            ctx.lineTo(250, 195); // Right side of the scarf
+            ctx.lineTo(245, 205); // Right end
+            ctx.lineTo(155, 205); // Left end
+            ctx.closePath();
+            ctx.fillStyle = 'red';
+            ctx.fill();
+
+            // Scarf tail
+            ctx.beginPath();
+            ctx.moveTo(250, 205);
+            ctx.lineTo(250, 235); // Vertical tail of scarf
+            ctx.lineTo(240, 235);
+            ctx.lineTo(240, 205);
+            ctx.closePath();
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+
+        // Step 8: Draw the smile
+        function drawSmile() {
+            ctx.beginPath();
+            ctx.arc(200, 185, 20, 0, Math.PI, false); // Half circle for smile
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function youwin() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '36px Arial';
+            ctx.fillStyle = 'green';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('YOU WIN!', canvas.width / 2, canvas.height / 2);
+        }
+
+        function youloose() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '36px Arial';
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SORRY YOU LOOSE!', canvas.width / 2, canvas.height / 2);
+        }
+    </script>
+  
+</script>
 </html>
