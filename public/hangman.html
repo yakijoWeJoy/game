@@ -21,6 +21,14 @@
             margin: 0;
             background-color: #f0f0f0;
         }
+        .row2
+        {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
         .keyboard {
             display: flex;
             flex-direction: column;
@@ -126,12 +134,13 @@
                 <button onclick="handleClick('M')" id="M">M</button>
             </div>
         </div>
-          <div   id="create_back" style="display: none" ><a href="index.html" target="_blank">Create a Hangman back to friend</a> <BR></div>
+       
+          <div   class="row2"  id="create_back" style="display: none" ><a href="index.html" target="_blank">Create a Hangman back to friend</a> <BR></div>
         
         
-          <div id="icon" class="row" ><img src="hangman.jpg" alt="A cute hangman" width="300" height="300"></div>
+          <div id="icon" class="row2"  ><img src="hangman.jpg" alt="A cute hangman" width="300" height="300"></div>
           
-          <canvas id="snowmanCanvas" width="300" height="200" style="display:none;" ></canvas>
+          <div  class="row2" >  <canvas id="snowmanCanvas" width="300" height="200" style="display:none;" ></canvas></div>
     </div>
 
    
@@ -180,9 +189,18 @@
 
         word = decrypt(encryptedWord);
         guessedWord = Array(word.length).fill('_');
-        document.getElementById('word-display').innerText = guessedWord.join(' ');
+        showSpaces();
+        document.getElementById('word-display').innerHTML = guessedWord.join(' ');
     }
 
+    function showSpaces ()
+    {
+        for (let i = 0; i < word.length; i++) {
+                if (word[i] === ' ') {
+                    guessedWord[i] = '&nbsp;';
+                }
+            }
+    }
     function handleClick(letter) {
         guess(letter);
         // Disable the button
@@ -199,10 +217,10 @@
                     guessedWord[i] = letter;
                 }
             }
-            document.getElementById('word-display').innerText = guessedWord.join(' ');
+            document.getElementById('word-display').innerHTML = guessedWord.join(' ');
 
             // Check if the player has won
-            if (guessedWord.join('') === word) {
+            if (guessedWord.join('').replace('&nbsp;',' ') === word) {
                 youwin();
                 saveGaneEnded('1');
                 disableGame();
