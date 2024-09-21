@@ -23,29 +23,56 @@
         #link-container {
             margin-top: 20px;
         }
+        .share_link img {
+            width: 30px;
+            height: 30px;
+        }
     </style>
    
 </head>
 <body>
 
-    <h1>Create a Snowman for a Friend</h1>
+    <h1>Create a HangMan for a Friend</h1>
     <div class="input-container">
       
-        <input type="text" id="word-input"   pattern="[A-Za-z\s]+"  placeholder="Enter a word/s :"><br><br>
+        <input type="text" id="word-input"  onkeypress="inputchnaged()" pattern="[A-Za-z\s]+"  placeholder="Enter a word/s :"><br><br>
 
      
         <input type="submit" value="Create Link" onclick="createLink()">
     </div>
     <div id="word-display" class="word-display"></div>
    
-    <div id="link-container"></div>
+   
+    <div id="share_link" class="share_link" style="display: none;">
+     <br>   
+    <a href="#" id="shareLink"  onclick="shareLink()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/ff/Sharethis.svg" alt="Share">
+        Send to friend</a>
+    <a href="#" id="shareLink" onclick="whatsAppLink()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+      
+        Whatsapp </a>
+      <br><br>  
+    <a href="#" id="shareLink" onclick="tryYourSelf()">
+        
+        Try your self </a>
+
+
+
+
+
+
+    </div>
     <br>
     <div id="try_it_yourself" ></div>
-    <div><img src="img/snowman.jpeg" alt="A cute snowman" width="300" height="300"></div>
+    <div><img src="hangman.jpg" alt="A cute hangman" width="300" height="300"></div>
 
 </body>
 <script>
     let playerID = '';
+    let link="";
+    let whatsapplink=""
+    let wordCreated = false;
       window.onload = () => {
             //get id from querystring 
             const urlParams = new URLSearchParams(window.location.search);
@@ -74,17 +101,48 @@
             alert('Please enter a word.');
             return;
         }
+        if(wordCreated){
+            alert('Change word/s to create new link');
+            return;
+        }
+         wordCreated = true;
         var gameid = generteId();
    
-        document.getElementById('word-display').innerHTML = convertToPattern(word).replace(/ /g, '&nbsp;');;
+        document.getElementById('word-display').innerHTML = convertToPattern(word).replace(/ /g, '&nbsp;');
+        document.getElementById('share_link').style.display = 'block';
+        
         const encryptedWord = encrypt(word);
-        const link = `${window.location.origin}/snowman.html?word=${encryptedWord}&p=${playerID}&g=${gameid}`;
-        const whatsapLink= generateWhatsAppLink(link);
+         link = `${window.location.origin}/hangman.html?word=${encryptedWord}&p=${playerID}&g=${gameid}`;
+         whatsapplink= generateWhatsAppLink(link);
 
-        document.getElementById('link-container').innerHTML = `<a href="${whatsapLink}" target="_blank">Send this link to your friend with WhatsApp</a>`;
-        document.getElementById('try_it_yourself').innerHTML = `<a href="${link}" target="_blank">try it yourself</a>`;
 
     }
+    function tryYourSelf() {
+        window.location.href = link;
+    }
+    function whatsAppLink() {
+        window.location.href = whatsapplink;
+    }
+    function shareLink() {
+        
+   
+   
+        if (navigator.share) {
+            try {
+                 navigator.share({
+                    title: 'Hi there',
+                    text: 'Created just for you a  hangman',
+                    url: link
+                });
+                console.log('Link shared successfully!');
+            } catch (error) {
+                console.error('Error sharing:', error);
+            }
+        } else {
+            alert('Your device does not support the Web Share API.');
+        }
+   
+  }  
 
     function generateWhatsAppLink(baseUrl) {
 
@@ -108,7 +166,19 @@
     return pattern;
    }
 
+   function inputchnaged() {
+  
+    if(wordCreated){
+         
+          
+            wordCreated = false;
+            document.getElementById('word-display').innerHTML = "";
+            document.getElementById('share_link').style.display = 'none';
+        }
+   }
+   
     document.getElementById('word-input').addEventListener('input', function (e) {
+        
         this.value = this.value.replace(/[^A-Za-z\s]/g, '');
     });
 </script>

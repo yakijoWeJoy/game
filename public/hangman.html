@@ -52,7 +52,7 @@
 </head>
 <body>
 
-    <h1>Snowman Game</h1>
+    <h1>Hangman Game</h1>
 
     <div id="word-display" class="word-display"></div>
 
@@ -62,8 +62,10 @@
             <input width="10" type="text" id="letter-guess" maxlength="1">
             <button onclick="guessLetter()">Guess</button>
           </div>
-          <div id="create_back" style="display: none" ><a href="index.html" target="_blank">create a snow man for a friend</a><br></div>
-        <canvas id="snowmanCanvas" width="400" height="500" ></canvas><br>
+          <div id="create_back" style="display: none" ><a href="index.html" target="_blank">Create a Hangman back to friend</a><br></div>
+        <canvas id="snowmanCanvas" width="300" height="400" style="display:none;" ></canvas>
+        <div id="icon"><img src="hangman.jpg" alt="A cute hangman" width="300" height="300"></div>
+       
     </div>
 
    
@@ -176,10 +178,14 @@
 
         // Function to draw the snowman step by step
         function drawNextStep() {
+
+           
             currentStep++;
+
             switch (currentStep) {
                 case 1:
                     drawBase();
+                    clearImageAndShowCanvas();
                     break;
                 case 2:
                     drawMiddle();
@@ -207,7 +213,10 @@
                     break;
             }
         }
-
+        function clearImageAndShowCanvas() {
+            document.getElementById('snowmanCanvas').style.display = 'block';
+            document.getElementById('icon').style.display = 'none';
+        }
         // Step 1: Draw the base circle
         function drawBase() {
             ctx.beginPath();
@@ -328,6 +337,7 @@
         }
 
         function youwin() {
+            clearImageAndShowCanvas();  
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.font = '36px Arial';
             ctx.fillStyle = 'green';
@@ -342,7 +352,7 @@
             ctx.fillStyle = 'red';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('SORRY YOU LOOSE!', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('YOU LOOSE!', canvas.width / 2, canvas.height / 2);
         }
     </script>
   
