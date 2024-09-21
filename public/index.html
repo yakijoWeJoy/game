@@ -106,11 +106,12 @@
     }
 
     function createLink() {
-        const word = document.getElementById("word-input").value;
+        var word = document.getElementById("word-input").value;
         if (word === '') {
             alert('Please enter a word.');
             return;
         }
+        word= word.toUpperCase();
         if(wordCreated){
             alert('Change word/s to create new link');
             return;
@@ -165,7 +166,7 @@
 
     function convertToPattern(input) {
         // Trim leading/trailing spaces and replace single spaces between words with double spaces
-        const trimmedInput = input.trim();
+        const trimmedInput = input.trim().toUpperCase();
     
     // Replace letters with underscores and keep spaces as separators
     const pattern = trimmedInput.split(' ').map(word => {

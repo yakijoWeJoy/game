@@ -9,7 +9,7 @@ const io = socketIO(server);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-
+/*
 app.get('/api/room/:roomId/clients', (req, res) => {
     const roomId = req.params.roomId;
     const clients = io.sockets.adapter.rooms.get(roomId);
@@ -17,7 +17,7 @@ app.get('/api/room/:roomId/clients', (req, res) => {
     res.json({ roomId, numberOfClients });
 });
 
-/*
+
 io.on('connection', (socket) => {
     console.log('New user connected');
 

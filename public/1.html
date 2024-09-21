@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive QWERTY Keyboard</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 400px; /* Limit max width for better fit */
+            padding: 10px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between; /* Distribute buttons evenly */
+            margin-bottom: 10px;
+        }
+        button {
+            flex: 1; /* Make buttons take equal space */
+            height: 50px; /* Set a consistent height */
+            margin: 2px; /* Space between buttons */
+            font-size: 20px; /* Adjust font size */
+            cursor: pointer;
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #e0e0e0; /* Change color on hover */
+        }
+        button:disabled {
+            background-color: lightgray;
+            color: white;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="row" ><h1>Hangman Game</h1></div> 
+    <div id="word-display" class="word-display"></div>
+<div class="keyboard">
+ 
+    <!-- First row -->
+    <div class="row">
+        <button onclick="handleClick('Q')" id="Q">Q</button>
+        <button onclick="handleClick('W')" id="W">W</button>
+        <button onclick="handleClick('E')" id="E">E</button>
+        <button onclick="handleClick('R')" id="R">R</button>
+        <button onclick="handleClick('T')" id="T">T</button>
+        <button onclick="handleClick('Y')" id="Y">Y</button>
+        <button onclick="handleClick('U')" id="U">U</button>
+        <button onclick="handleClick('I')" id="I">I</button>
+        <button onclick="handleClick('O')" id="O">O</button>
+        <button onclick="handleClick('P')" id="P">P</button>
+    </div>
+
+    <!-- Second row -->
+    <div class="row">
+        <button onclick="handleClick('A')" id="A">A</button>
+        <button onclick="handleClick('S')" id="S">S</button>
+        <button onclick="handleClick('D')" id="D">D</button>
+        <button onclick="handleClick('F')" id="F">F</button>
+        <button onclick="handleClick('G')" id="G">G</button>
+        <button onclick="handleClick('H')" id="H">H</button>
+        <button onclick="handleClick('J')" id="J">J</button>
+        <button onclick="handleClick('K')" id="K">K</button>
+        <button onclick="handleClick('L')" id="L">L</button>
+    </div>
+
+    <!-- Third row -->
+    <div class="row">
+        <button onclick="handleClick('Z')" id="Z">Z</button>
+        <button onclick="handleClick('X')" id="X">X</button>
+        <button onclick="handleClick('C')" id="C">C</button>
+        <button onclick="handleClick('V')" id="V">V</button>
+        <button onclick="handleClick('B')" id="B">B</button>
+        <button onclick="handleClick('N')" id="N">N</button>
+        <button onclick="handleClick('M')" id="M">M</button>
+    </div>
+</div>
+
+<script>
+    function handleClick(letter) {
+        guess(letter);
+        // Disable the button
+        document.getElementById(letter).disabled = true;
+    }
+
+    function guess(letter) {
+        console.log("You guessed: " + letter);
+        // Here you can handle the letter guessed logic
+    }
+</script>
+
+</body>
+</html>
