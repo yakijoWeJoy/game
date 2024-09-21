@@ -10,7 +10,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create a Snowman for a Friend</title>
+    <head>
+        <!-- Title of the page -->
+        <meta property="og:title" content="Hangman creator" />
+        
+        <!-- Description -->
+        <meta property="og:description" content="enjoy playong hangman" />
+        
+        <!-- URL of your website -->
+        <meta property="og:url" content="https://game-gg9v.onrender.com" />
+        
+        <!-- URL of the image you want to display -->
+        <meta property="og:image" content="https://game-gg9v.onrender.com/hangman.jpg" />
+        
+        <!-- Type of content -->
+        <meta property="og:type" content="website" />
+    </head>
+    
+    <title>Hangman creator</title> 
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,7 +59,7 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW6BXNCP"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <h1>Create a HangMan for a Friend</h1>
+    <h1>Create a Hangman for a Friend</h1>
     <div class="input-container">
       
         <input type="text" id="word-input"  onkeypress="inputchnaged()" pattern="[A-Za-z\s]+"  placeholder="Enter a word/s :"><br><br>
@@ -142,7 +159,7 @@
             try {
                  navigator.share({
                     title: 'Hi there',
-                    text: 'Created just for you a  hangman',
+                    text: 'Created just for you a  Hangman',
                     url: link
                 });
                 console.log('Link shared successfully!');
@@ -157,7 +174,7 @@
 
     function generateWhatsAppLink(baseUrl) {
 
-            const message = 'guess my snowman';
+            const message = 'guess my Hangman';
             const encodedMessage = encodeURIComponent(`${message} ${baseUrl}`);
             const shareUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
             return  shareUrl;
