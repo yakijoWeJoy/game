@@ -17,6 +17,7 @@ app.get('/api/room/:roomId/clients', (req, res) => {
     res.json({ roomId, numberOfClients });
 });
 
+/*
 io.on('connection', (socket) => {
     console.log('New user connected');
 
@@ -51,7 +52,7 @@ io.on('connection', (socket) => {
         console.log('User disconnected');
     });
 });
-
+*/
 // Start the server
 console.log('1');
 const PORT = process.env.PORT || 3000;
